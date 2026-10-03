@@ -1,0 +1,19 @@
+# Betriebssystem-Dateien
+.DS_Store
+Thumbs.db
+
+# Editor-/IDE-Einstellungen
+.vscode/
+.idea/
+
+# Vercel/Netlify
+.vercel
+.netlify
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Lokale Umgebungsvariablen
+.env
+.env.local
