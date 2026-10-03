@@ -384,9 +384,9 @@
   function durationBetween(start,end){ return end-start; }
   function formatDuration(mins){
     const h = Math.floor(mins/60), m = mins%60;
-    if(h===0) return `${m} Minuten`;
+    if(h===0) return `${m} Minute${m===1?'':'n'}`;
     if(m===0) return `${h} Stunde${h>1?'n':''}`;
-    return `${h} Stunde${h>1?'n':''} ${m} Minuten`;
+    return `${h} Stunde${h>1?'n':''} ${m} Minute${m===1?'':'n'}`;
   }
   function hourHandAngle(h,m){ return (h%12)*30 + m*0.5; }
   function minuteHandAngle(m){ return m*6; }
@@ -459,23 +459,23 @@
   /* =========================================================
      TAGESKONTEXT-POOL (fuer Vormittag/Nachmittag + Tagesablauf)
      ========================================================= */
-  const NAMES = ['Mila','Finn','Lea','Ben','Nora','Tom','Ida','Max','Zoe','Theo'];
+  const NAMES = ['Mila','Finn','Lea','Ben','Nora','Tom','Ida','Max','Zoe','Theo','Oliver','Emma'];
   const SITUATIONS_AM = [
     { icon:'fruehstueck', text:'{name} frühstückt morgens.', hour:[7,8] },
-    { icon:'schule', text:'Die Schule beginnt.', hour:[8] },
+    { icon:'schule', text:'Die Schule beginnt morgens.', hour:[8] },
     { icon:'pause', text:'{name} hat Pause auf dem Schulhof.', hour:[9,10] },
-    { icon:'mittag', text:'{name} isst zu Mittag.', hour:[13] },
+    { icon:'mittag', text:'{name} isst Mittagessen.', hour:[13] },
     { icon:'schwimmen', text:'{name} hat vormittags Schwimmkurs.', hour:[9,10,11] },
     { icon:'bus', text:'{name} wartet morgens auf den Schulbus.', hour:[7,8] },
   ];
   const SITUATIONS_PM = [
-    { icon:'hausaufgaben', text:'{name} macht Hausaufgaben am Nachmittag.', hour:[15,16] },
+    { icon:'hausaufgaben', text:'{name} macht nachmittags Hausaufgaben.', hour:[15,16] },
     { icon:'spielplatz', text:'{name} ist nachmittags auf dem Spielplatz.', hour:[16,17] },
     { icon:'sport', text:'{name} geht nachmittags zum Turnen.', hour:[16,17,18] },
     { icon:'fussball', text:'{name} geht nachmittags zum Fußball.', hour:[16,17] },
-    { icon:'musik', text:'{name} hat am Nachmittag Musikunterricht.', hour:[15,16] },
-    { icon:'abendessen', text:'{name} isst heute Abend zu Abend.', hour:[18,19] },
-    { icon:'schlafen', text:'{name} geht heute um diese Zeit schlafen.', hour:[19,20,21] },
+    { icon:'musik', text:'{name} hat nachmittags Musikunterricht.', hour:[15,16] },
+    { icon:'abendessen', text:'{name} isst Abendessen.', hour:[18,19] },
+    { icon:'schlafen', text:'{name} geht abends schlafen.', hour:[19,20,21] },
   ];
   function pickSituation(){
     const isAM = Math.random()<0.5;
@@ -490,18 +490,18 @@
   }
 
   const DAY_EVENTS = [
-    { icon:'fruehstueck', label:'Frühstück', hour:[7], min:[0,30] },
-    { icon:'schule', label:'Schulbeginn', hour:[8], min:[0] },
-    { icon:'pause', label:'Pause', hour:[9,10], min:[0,15,30] },
-    { icon:'mittag', label:'Mittagessen', hour:[12,13], min:[0,15,30] },
-    { icon:'hausaufgaben', label:'Hausaufgaben', hour:[14,15], min:[0,30] },
-    { icon:'spielplatz', label:'Spielplatz', hour:[15,16], min:[0,30] },
-    { icon:'sport', label:'Turnen', hour:[16,17], min:[0,30] },
-    { icon:'fussball', label:'Fußballtraining', hour:[16,17], min:[0,30] },
-    { icon:'schwimmen', label:'Schwimmkurs', hour:[9,10,11], min:[0,30] },
-    { icon:'musik', label:'Musikunterricht', hour:[15,16], min:[0,30] },
-    { icon:'abendessen', label:'Abendessen', hour:[18,19], min:[0,30] },
-    { icon:'schlafen', label:'Schlafengehen', hour:[20,21], min:[0,30] },
+    { icon:'fruehstueck', label:'Frühstück', intro:'Das Frühstück beginnt.', start:'Das Frühstück beginnt um {t}.', hour:[7], min:[0,30] },
+    { icon:'schule', label:'Schulbeginn', intro:'Die Schule beginnt.', start:'Die Schule beginnt um {t}.', hour:[8], min:[0] },
+    { icon:'pause', label:'Pause', intro:'Die Pause beginnt.', start:'Die Pause beginnt um {t}.', hour:[9,10], min:[0,15,30] },
+    { icon:'mittag', label:'Mittagessen', intro:'Das Mittagessen beginnt.', start:'Das Mittagessen beginnt um {t}.', hour:[12,13], min:[0,15,30] },
+    { icon:'hausaufgaben', label:'Hausaufgaben', intro:'Die Hausaufgaben beginnen.', start:'Die Hausaufgaben beginnen um {t}.', hour:[14,15], min:[0,30] },
+    { icon:'spielplatz', label:'Spielplatz', intro:'Es geht zum Spielplatz.', start:'Um {t} geht es zum Spielplatz.', hour:[15,16], min:[0,30] },
+    { icon:'sport', label:'Turnen', intro:'Das Turnen beginnt.', start:'Das Turnen beginnt um {t}.', hour:[16,17], min:[0,30] },
+    { icon:'fussball', label:'Fußballtraining', intro:'Das Fußballtraining beginnt.', start:'Das Fußballtraining beginnt um {t}.', hour:[16,17], min:[0,30] },
+    { icon:'schwimmen', label:'Schwimmkurs', intro:'Der Schwimmkurs beginnt.', start:'Der Schwimmkurs beginnt um {t}.', hour:[9,10,11], min:[0,30] },
+    { icon:'musik', label:'Musikunterricht', intro:'Der Musikunterricht beginnt.', start:'Der Musikunterricht beginnt um {t}.', hour:[15,16], min:[0,30] },
+    { icon:'abendessen', label:'Abendessen', intro:'Das Abendessen beginnt.', start:'Das Abendessen beginnt um {t}.', hour:[18,19], min:[0,30] },
+    { icon:'schlafen', label:'Schlafengehen', intro:'Es geht ins Bett.', start:'Um {t} geht es ins Bett.', hour:[20,21], min:[0,30] },
   ];
 
   function daySvg(key){
@@ -631,6 +631,15 @@
   function triggerWrongEl(el){ el.classList.add('wrong-shake'); after(420, ()=>el.classList.remove('wrong-shake')); }
   const GOOD_FEEDBACK = ['Richtig!','Super!','Genau!','Das stimmt!','Klasse gemacht!'];
   const BAD_FEEDBACK = ['Fast! Schau dir die Uhr noch einmal an.','Probier es noch einmal.','Schau genau auf den Stunden- und Minutenzeiger.'];
+  const BAD_FEEDBACK_CALC = ['Fast! Rechne noch einmal in Ruhe nach.','Probier es noch einmal.','Schau genau auf die Uhrzeiten.'];
+  const BAD_FEEDBACK_LIST = ['Fast! Schau dir die Uhrzeiten noch einmal an.','Probier es noch einmal.'];
+  // Passende Rueckmeldung je nach Aufgabe: Bei Aufgaben ohne Uhr nicht auf "die Uhr" verweisen
+  function badMsg(){
+    const k = state.currentTask && state.currentTask.kind;
+    if(k==='zeitVergeht' || k==='tagE' || k==='spaeterDann' || k==='frueherVorher') return pick(BAD_FEEDBACK_CALC);
+    if(k==='tagC' || k==='tagD') return pick(BAD_FEEDBACK_LIST);
+    return pick(BAD_FEEDBACK);
+  }
 
   /* =========================================================
      MODUS-DEFINITIONEN
@@ -785,7 +794,7 @@
     return { kind:'wieSpaet', time:t, options };
   }
   function genStellUhr(level){
-    const t = randomTimeForLevel(level, 0, 23);
+    const t = randomTimeForLevel(level, 1, 23); // keine '0:30 Uhr'-Aufgaben (klingt fuer Kinder unsinnig)
     return { kind:'stellUhr', target:t };
   }
   function genWelcheUhr(level){
@@ -873,10 +882,15 @@
       const t = {h,m};
       if(type==='A'){
         const options = uniqueTimeDistractors(t,3,timeVariants(),0,23);
-        return { kind:'tagA', icon:ev.icon, label:ev.label, time:t, options };
+        return { kind:'tagA', icon:ev.icon, label:ev.label, intro:ev.intro, start:ev.start, time:t, options };
       } else {
-        const options = uniqueTimeDistractors(t,3,timeVariants(),0,23);
-        return { kind:'tagB', icon:ev.icon, label:ev.label, time:t, options };
+        // Bei Uhren als Antwort duerfen keine zwei Optionen gleich aussehen (z. B. 8:00 und 20:00)
+        let options, guard = 0;
+        do {
+          options = uniqueTimeDistractors(t,3,timeVariants(),0,23);
+          guard++;
+        } while(new Set(options.map(o => (o.h%12)+':'+o.m)).size < options.length && guard < 60);
+        return { kind:'tagB', icon:ev.icon, label:ev.label, intro:ev.intro, start:ev.start, time:t, options };
       }
     } else if(type==='C'){
       const picks = shuffle(DAY_EVENTS).slice(0,3).map(ev => ({ icon:ev.icon, label:ev.label, h:pick(ev.hour), m:pick(ev.min) }));
@@ -933,7 +947,7 @@
         if(opt.h===correct.h && opt.m===correct.m){
           state.locked = true; card.classList.add('correct-pulse');
           showFeedback(pick(GOOD_FEEDBACK), true); after(650, onCorrectCb);
-        } else { triggerWrongEl(card); showFeedback(pick(BAD_FEEDBACK)); }
+        } else { triggerWrongEl(card); showFeedback(badMsg()); }
       });
       container.appendChild(card);
     });
@@ -947,7 +961,7 @@
       card.addEventListener('click', () => {
         if(state.locked) return;
         if(opt===correct){ state.locked = true; card.classList.add('correct-pulse'); showFeedback(pick(GOOD_FEEDBACK), true); after(650, onCorrectCb); }
-        else { triggerWrongEl(card); showFeedback(pick(BAD_FEEDBACK)); }
+        else { triggerWrongEl(card); showFeedback(badMsg()); }
       });
       container.appendChild(card);
     });
@@ -962,7 +976,7 @@
       wrap.addEventListener('click', () => {
         if(state.locked) return;
         if(opt.h===correct.h && opt.m===correct.m){ state.locked=true; wrap.classList.add('correct-pulse'); showFeedback(pick(GOOD_FEEDBACK), true); after(650, onTaskSuccess); }
-        else { triggerWrongEl(wrap); showFeedback(pick(BAD_FEEDBACK)); }
+        else { triggerWrongEl(wrap); showFeedback(badMsg()); }
       });
       container.appendChild(wrap);
     });
@@ -1110,7 +1124,7 @@
         if(targetMod.h===vMod.h && targetMod.m===vMod.m){
           state.locked = true; checkBtn.classList.add('correct-pulse');
           showFeedback(pick(GOOD_FEEDBACK), true); after(650, onTaskSuccess);
-        } else { triggerWrongEl(checkBtn); showFeedback(pick(BAD_FEEDBACK)); }
+        } else { triggerWrongEl(checkBtn); showFeedback(badMsg()); }
       });
     }
 
@@ -1133,7 +1147,7 @@
     }
 
     else if(task.kind==='vorNach'){
-      setPrompt('Welche Uhrzeit passt?');
+      setPrompt('Welche Uhrzeit passt?', `${task.text} Welche Uhrzeit passt?`);
       const sitRow = document.createElement('div');
       sitRow.style.cssText='display:flex; align-items:center; gap:3vw;';
       sitRow.appendChild(buildDayIcon(task.icon));
@@ -1146,7 +1160,7 @@
     }
 
     else if(task.kind==='zeitVergeht'){
-      setPrompt('Wie viel Zeit vergeht?');
+      setPrompt('Wie viel Zeit vergeht?', `Wie viel Zeit vergeht von ${spokenTime(task.start.h,task.start.m)} bis ${spokenTime(task.end.h,task.end.m)}?`);
       const row = document.createElement('div'); row.style.cssText='display:flex; gap:4vw; align-items:center;';
       const c1 = document.createElement('div'); c1.style.cssText='display:flex;flex-direction:column;align-items:center;gap:.4vh;';
       c1.appendChild(buildClockEl(task.start.h, task.start.m, {small:true}));
@@ -1175,14 +1189,14 @@
     }
 
     else if(task.kind==='tagA'){
-      setPrompt(`${task.label}: welche Uhrzeit passt?`);
+      setPrompt(`${task.intro} Welche Uhrzeit passt?`);
       els.taskBody.appendChild(buildDayIcon(task.icon));
       els.taskBody.appendChild(buildClockEl(task.time.h, task.time.m));
       const row = document.createElement('div'); els.taskBody.appendChild(row);
       renderTimeChoiceRow(row, task.options, task.time, onTaskSuccess);
     }
     else if(task.kind==='tagB'){
-      setPrompt(`${task.label} ist um ${formatTimeT(task.time)}. Welche Uhr passt?`, `${task.label} ist um ${spokenTime(task.time.h,task.time.m)}. Welche Uhr passt?`);
+      setPrompt(`${task.start.replace('{t}', formatTimeT(task.time))} Welche Uhr passt?`, `${task.start.replace('{t}', spokenTime(task.time.h,task.time.m))} Welche Uhr passt?`);
       els.taskBody.appendChild(buildDayIcon(task.icon));
       const row = document.createElement('div'); els.taskBody.appendChild(row);
       renderClockChoiceRow(row, task.options, task.time, true);
@@ -1200,14 +1214,14 @@
           if(state.locked) return;
           if(ev.label===task.correctFirst.label && ev.h===task.correctFirst.h && ev.m===task.correctFirst.m){
             state.locked=true; row.classList.add('correct-pulse'); showFeedback(pick(GOOD_FEEDBACK), true); after(650, onTaskSuccess);
-          } else { triggerWrongEl(row); showFeedback(pick(BAD_FEEDBACK)); }
+          } else { triggerWrongEl(row); showFeedback(badMsg()); }
         });
         col.appendChild(row);
       });
       els.taskBody.appendChild(col);
     }
     else if(task.kind==='tagD'){
-      setPrompt('Was ist später?');
+      setPrompt('Was passiert später?');
       const col = document.createElement('div'); col.className='events-col';
       [task.ev1, task.ev2].forEach((ev,idx) => {
         const row = document.createElement('button'); row.className='event-row';
@@ -1218,14 +1232,14 @@
         row.addEventListener('click', () => {
           if(state.locked) return;
           if(idx===task.laterIdx){ state.locked=true; row.classList.add('correct-pulse'); showFeedback(pick(GOOD_FEEDBACK), true); after(650, onTaskSuccess); }
-          else { triggerWrongEl(row); showFeedback(pick(BAD_FEEDBACK)); }
+          else { triggerWrongEl(row); showFeedback(badMsg()); }
         });
         col.appendChild(row);
       });
       els.taskBody.appendChild(col);
     }
     else if(task.kind==='tagE'){
-      setPrompt('Wie viel Zeit ist vergangen?');
+      setPrompt('Wie viel Zeit vergeht?');
       const col = document.createElement('div'); col.className='events-col';
       [task.ev1, task.ev2].forEach(ev => {
         const row = document.createElement('div'); row.className='event-row'; row.style.cursor='default';
