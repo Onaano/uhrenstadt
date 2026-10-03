@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Uhrenstadt — Uhrzeit lernen &amp; Zeitspannen berechnen | Förderfreude Games</title>
+<style>
+  :root{
+    --cream:#faf3e7; --cream-dark:#eeddc2; --ink:#3a3226; --muted:#7a7062;
+    --panel:#fffcf5; --panel-edge:rgba(58,50,38,.16);
+    --altrosa:#d98a92; --altrosa-dark:#b06670;
+    --salbei:#8fa888; --salbei-dark:#6d8768;
+    --gelb:#eec14a; --gelb-dark:#c99a1f;
+    --terrakotta:#d97e55; --terrakotta-dark:#b45e39;
+    --hellblau:#8fb9c9; --hellblau-dark:#5f93a6;
+    --font-display: ui-rounded, 'Segoe UI Rounded', 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; height:100%; overscroll-behavior:none; }
+  body{
+    font-family:var(--font-body);
+    background:linear-gradient(180deg, #f1ddc6 0%, #f8ecd9 40%, var(--cream) 100%);
+    color:var(--ink);
+    height:100vh; height:100dvh;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    user-select:none; -webkit-user-select:none;
+  }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; padding:0; color:inherit; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
+
+  header{ flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:1.2vh 3vw 0.4vh; gap:2vw; z-index:5; position:relative; }
+  .brand{ font-family:var(--font-display); font-weight:800; font-size:clamp(13px,2vw,18px); color:var(--ink); display:flex; align-items:center; gap:1.2vw; }
+  .header-btns{ display:flex; gap:2vw; }
+  .icon-btn{
+    width:clamp(34px,4.4vw,44px); height:clamp(34px,4.4vw,44px);
+    border-radius:50%; background:var(--panel); border:1.6px solid var(--panel-edge);
+    display:flex; align-items:center; justify-content:center; font-size:clamp(15px,1.9vw,19px);
+    transition:transform .1s ease;
+  }
+  .icon-btn:active{ transform:scale(.9); }
+  .icon-btn[aria-pressed="false"]{ opacity:.5; }
+  .icon-btn:focus-visible{ outline:3px solid var(--hellblau-dark); outline-offset:2px; }
+  .back-btn{
+    display:flex; align-items:center; gap:1vw; font-family:var(--font-display); font-weight:700;
+    font-size:clamp(12px,1.6vw,14px); color:var(--ink); background:var(--panel);
+    border:1.6px solid var(--panel-edge); border-radius:999px; padding:.9vh 3vw;
+  }
+  .back-btn:active{ transform:scale(.95); }
+
+  .screen{ flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; position:relative; z-index:1; }
+  .screen[hidden]{ display:none; }
+  .screen-center{ justify-content:center; }
+
+  /* ---------- Start ---------- */
+  #screen-start{ width:100%; overflow-y:auto; padding:1vh 4vw 3vh; }
+  .title-big{ font-family:var(--font-display); font-weight:800; font-size:clamp(23px,4.2vw,38px); color:var(--terrakotta-dark); margin:1vh 0 0; text-align:center; }
+  .subtitle-big{ font-family:var(--font-display); font-weight:700; font-size:clamp(12px,1.8vw,16px); color:var(--ink); margin:.3vh 0; text-align:center; }
+  .intro-line{ font-size:clamp(11px,1.6vw,14px); color:var(--muted); font-weight:600; margin:0 0 1.6vh; text-align:center; }
+
+  .mode-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:1.8vw; width:100%; max-width:1000px; margin:0 auto; }
+  .mode-card{
+    background:var(--panel); border:2.2px solid var(--panel-edge); border-radius:16px;
+    padding:1.6vh 1.6vw; display:flex; flex-direction:column; align-items:center; gap:.8vh;
+    box-shadow:0 5px 0 rgba(58,50,38,.12); transition:transform .1s ease; min-height:130px; justify-content:center;
+  }
+  .mode-card:active{ transform:translateY(3px); box-shadow:0 2px 0 rgba(58,50,38,.12); }
+  .mode-card .mode-icon{ width:44px; height:44px; }
+  .mode-card .mode-icon svg{ width:100%; height:100%; display:block; }
+  .mode-card .mode-title{ font-family:var(--font-display); font-weight:800; font-size:clamp(11.5px,1.6vw,14px); color:var(--ink); text-align:center; }
+  .mode-card .mode-sub{ font-size:clamp(9px,1.2vw,10.5px); color:var(--muted); font-weight:600; text-align:center; }
+  .mode-card.c1{ border-color:var(--terrakotta-dark); } .mode-card.c2{ border-color:var(--salbei-dark); }
+  .mode-card.c3{ border-color:var(--hellblau-dark); } .mode-card.c4{ border-color:var(--gelb-dark); }
+  .mode-card.c5{ border-color:var(--altrosa-dark); } .mode-card.c6{ border-color:var(--terrakotta-dark); }
+  .mode-card.c7{ border-color:var(--salbei-dark); } .mode-card.c8{ border-color:var(--hellblau-dark); }
+  .mode-card.c9{ border-color:var(--altrosa-dark); }
+  .brand-footer{ font-size:clamp(10px,1.3vw,12px); color:var(--muted); font-weight:700; text-align:center; margin-top:2vh; }
+
+  /* ---------- Unterauswahl (Schwierigkeit) ---------- */
+  #screen-sub{ gap:2vh; padding:2vh 4vw; }
+  .sub-title{ font-family:var(--font-display); font-weight:800; font-size:clamp(18px,2.8vw,25px); color:var(--terrakotta-dark); text-align:center; }
+  .sub-choices{ display:flex; gap:2.2vw; flex-wrap:wrap; justify-content:center; max-width:760px; }
+  .sub-card{
+    background:var(--panel); border:2.4px solid var(--panel-edge); border-radius:14px;
+    padding:2vh 3.2vw; min-width:130px; box-shadow:0 5px 0 rgba(58,50,38,.14);
+    font-family:var(--font-display); font-weight:800; font-size:clamp(12px,1.8vw,15px); color:var(--ink);
+    display:flex; flex-direction:column; align-items:center; gap:.6vh; transition:transform .1s ease;
+  }
+  .sub-card:active{ transform:translateY(3px); box-shadow:0 2px 0 rgba(58,50,38,.14); }
+  .sub-card .sub-dot{ width:14px; height:14px; border-radius:50%; }
+
+  /* ---------- Spiel ---------- */
+  #screen-game{ width:100%; gap:0.5vh; padding:0 3vw 1.2vh; }
+  .progress-row{ flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:1.4vw; padding-top:.3vh; }
+  .progress-clocks{ display:flex; gap:.8vw; }
+  .mini-clock{ width:clamp(15px,2.4vw,20px); height:clamp(15px,2.4vw,20px); border-radius:50%; border:2px solid var(--panel-edge); opacity:.35; transition:opacity .3s ease, border-color .3s ease, transform .3s ease; position:relative; }
+  .mini-clock.lit{ opacity:1; border-color:var(--gelb-dark); background:#fdf3d6; transform:scale(1.15); }
+  .mini-clock::before, .mini-clock::after{ content:''; position:absolute; left:50%; top:50%; background:var(--ink); transform-origin:0 0; }
+  .mini-clock::before{ width:1.6px; height:28%; margin-left:-0.8px; }
+  .mini-clock::after{ width:1.6px; height:38%; margin-left:-0.8px; transform:rotate(90deg); }
+  .progress-num{ font-family:var(--font-display); font-weight:800; font-size:clamp(11px,1.6vw,15px); color:var(--ink); background:var(--panel); border:1.6px solid var(--panel-edge); border-radius:999px; padding:.4vh 3vw; }
+
+  .task-wrap{ flex:1; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; padding:0.2vh 0; }
+  .task-stage{
+    position:relative; overflow:hidden; border-radius:24px; width:100%; height:100%;
+    background:var(--panel); box-shadow:0 10px 26px -14px rgba(58,50,38,.35);
+    display:flex; flex-direction:column; align-items:center; padding:1vh 3vw 1.2vh; gap:0.6vh;
+  }
+  .stage-glow{ position:absolute; inset:0; opacity:.08; pointer-events:none; z-index:0; }
+
+  .prompt-row{ flex-shrink:0; display:flex; align-items:center; gap:2vw; position:relative; z-index:1; }
+  .prompt-text{ font-family:var(--font-display); font-weight:800; font-size:clamp(15px,2.4vw,21px); color:var(--ink); text-align:center; }
+  .speak-btn{
+    flex-shrink:0; width:clamp(32px,4.2vw,40px); height:clamp(32px,4.2vw,40px); border-radius:50%;
+    background:#fdf3d6; border:2px solid var(--gelb-dark); color:var(--gelb-dark);
+    display:flex; align-items:center; justify-content:center; font-size:clamp(13px,1.9vw,17px); transition:transform .1s ease;
+  }
+  .speak-btn:active{ transform:scale(.9); }
+
+  .task-body{ flex:1; min-height:0; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.7vh; overflow:hidden; position:relative; z-index:1; }
+
+  .feedback-msg{
+    flex-shrink:0; font-family:var(--font-display); font-weight:700; font-size:clamp(12.5px,1.8vw,15px);
+    color:var(--altrosa-dark); text-align:center; min-height:1.8em; opacity:0; transition:opacity .2s ease; position:relative; z-index:1;
+  }
+  .feedback-msg.show{ opacity:1; }
+  .feedback-msg.good{ color:var(--salbei-dark); }
+
+  /* Analoge Uhr */
+  .clock-wrap{ flex-shrink:1; min-height:0; aspect-ratio:1/1; height:min(32vh,260px); max-width:92%; }
+  .clock-wrap.small{ height:min(16vh,120px); }
+  .clock-wrap svg{ width:100%; height:100%; display:block; }
+  .clock-face{ fill:var(--panel); stroke:var(--ink); }
+  .clock-num{ font-family:var(--font-display); font-weight:800; fill:var(--ink); text-anchor:middle; dominant-baseline:central; }
+  .tick-major{ stroke:var(--ink); }
+  .tick-minor{ stroke:var(--muted); }
+  .hand-hour{ stroke:var(--ink); stroke-linecap:round; }
+  .hand-minute{ stroke:var(--terrakotta-dark); stroke-linecap:round; }
+  .hand-center{ fill:var(--ink); }
+  .clock-option{ border:3px solid var(--panel-edge); border-radius:16px; padding:1vh; background:var(--panel); transition:transform .1s ease, border-color .15s ease; }
+  .clock-option:active{ transform:scale(.97); }
+  .clock-option.correct-pulse{ border-color:var(--salbei-dark); background:#e3efdd; animation:pulse .5s ease; }
+  .clock-option.wrong-shake{ border-color:var(--altrosa-dark); animation:shake .4s ease; }
+  .clocks-row{ display:flex; gap:2.4vw; flex-wrap:wrap; justify-content:center; align-items:center; }
+
+  .choice-row{ display:flex; gap:2vw; flex-wrap:wrap; justify-content:center; max-width:640px; }
+  .choice-card{
+    background:var(--panel); border:3px solid var(--panel-edge); border-radius:14px;
+    padding:1.3vh 4.6vw; display:flex; flex-direction:column; align-items:center; gap:.4vh;
+    box-shadow:0 4px 0 rgba(58,50,38,.12); transition:transform .1s ease;
+    min-width:90px; font-family:var(--font-display); font-weight:800; font-size:clamp(15px,2.4vw,19px); color:var(--ink);
+  }
+  .choice-card:active{ transform:translateY(3px); }
+  .choice-card.wrong-shake{ animation:shake .4s ease; border-color:var(--altrosa-dark); }
+  .choice-card.correct-pulse{ animation:pulse .5s ease; border-color:var(--salbei-dark); background:#e3efdd; }
+  .choice-card:focus-visible{ outline:3px solid var(--hellblau-dark); outline-offset:2px; }
+
+  @keyframes shake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-6px); } 75%{ transform:translateX(6px); } }
+  @keyframes pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.07); } }
+
+  /* Interaktive Uhr Steuerung */
+  .adjust-row{ display:flex; gap:4vw; flex-wrap:wrap; justify-content:center; align-items:center; }
+  .adjust-group{ display:flex; flex-direction:column; align-items:center; gap:.5vh; }
+  .adjust-label{ font-family:var(--font-display); font-weight:700; font-size:clamp(10px,1.4vw,12px); color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .adjust-btns{ display:flex; align-items:center; gap:2vw; }
+  .adjust-btn{
+    width:clamp(38px,5vw,48px); height:clamp(38px,5vw,48px); border-radius:50%;
+    background:var(--panel); border:2.2px solid var(--panel-edge); font-size:clamp(18px,2.6vw,24px); font-weight:800;
+    display:flex; align-items:center; justify-content:center; color:var(--ink); transition:transform .1s ease;
+  }
+  .adjust-btn:active{ transform:scale(.88); }
+  .adjust-value{ font-family:var(--font-display); font-weight:800; font-size:clamp(18px,2.8vw,24px); color:var(--terrakotta-dark); min-width:2.2em; text-align:center; }
+  .check-btn{
+    font-family:var(--font-display); font-weight:800; font-size:clamp(14px,2vw,18px);
+    color:#fff; background:var(--terrakotta-dark); border-radius:999px; padding:1.3vh 7vw;
+    box-shadow:0 5px 0 #8a4726; transition:transform .1s ease; margin-top:.3vh;
+  }
+  .check-btn:active{ transform:translateY(3px); box-shadow:0 2px 0 #8a4726; }
+
+  .situation-line{ font-family:var(--font-display); font-weight:700; font-size:clamp(12px,1.8vw,15px); color:var(--terrakotta-dark); text-align:center; flex-shrink:0; }
+  .digital-chip{ font-family:var(--font-display); font-weight:800; font-size:clamp(14px,2.2vw,19px); color:var(--ink); background:var(--cream-dark); border-radius:999px; padding:.6vh 3.2vw; flex-shrink:0; }
+
+  .day-icon{ width:34px; height:34px; flex-shrink:0; }
+  .day-icon svg{ width:100%; height:100%; }
+
+  .events-col{ display:flex; flex-direction:column; gap:1vh; max-width:500px; width:100%; }
+  .event-row{ display:flex; align-items:center; gap:3vw; border:2.4px solid var(--panel-edge); border-radius:12px; padding:1vh 3vw; transition:transform .1s ease, border-color .15s ease; }
+  .event-row:active{ transform:scale(.98); }
+  .event-row.correct-pulse{ border-color:var(--salbei-dark); background:#e3efdd; animation:pulse .5s ease; }
+  .event-row.wrong-shake{ border-color:var(--altrosa-dark); animation:shake .4s ease; }
+  .event-row .day-icon{ width:28px; height:28px; }
+  .event-row .event-text{ font-family:var(--font-display); font-weight:700; font-size:clamp(12px,1.8vw,15px); flex:1; }
+  .event-row .event-time{ font-family:var(--font-display); font-weight:800; font-size:clamp(12px,1.8vw,15px); color:var(--terrakotta-dark); }
+
+  /* ---------- Ende ---------- */
+  #screen-end{ gap:1.4vh; text-align:center; padding:2vh 4vw; overflow-y:auto; width:100%; }
+  .end-title{ font-family:var(--font-display); font-weight:800; font-size:clamp(19px,3.4vw,30px); margin:0; color:var(--ink); }
+  .end-sub{ font-family:var(--font-display); font-weight:700; font-size:clamp(13px,1.9vw,17px); color:var(--terrakotta-dark); margin:0; }
+  .end-clock-wrap{ width:min(22vh,140px); margin:.4vh auto; }
+  .end-actions{ display:flex; gap:3vw; margin-top:.5vh; flex-wrap:wrap; justify-content:center; }
+  .btn-primary{
+    font-family:var(--font-display); font-weight:800; font-size:clamp(13px,1.9vw,16px);
+    color:#fff; background:var(--terrakotta-dark); border-radius:999px; padding:1.7vh 5.2vw;
+    box-shadow:0 8px 18px -8px rgba(180,94,57,.5); transition:transform .1s ease;
+  }
+  .btn-secondary{
+    font-family:var(--font-display); font-weight:800; font-size:clamp(13px,1.9vw,16px);
+    color:var(--ink); background:var(--panel); border:2px solid var(--panel-edge); border-radius:999px; padding:1.7vh 5.2vw;
+    transition:transform .1s ease;
+  }
+  .btn-primary:active, .btn-secondary:active{ transform:scale(.96); }
+
+  @media (max-width:560px){ .end-actions{ flex-direction:column; width:100%; } }
+  @media (max-height:600px){ .mode-card{ min-height:94px; padding:1vh 1.4vw; } .mode-card .mode-icon{ width:32px; height:32px; } }
+</style>
+</head>
+<body>
+
+  <div class="town-skyline" aria-hidden="true" style="position:fixed; left:0; right:0; bottom:0; width:100%; height:min(20vh,165px); z-index:0; pointer-events:none; overflow:hidden;">
+    <svg viewBox="0 0 2000 240" preserveAspectRatio="xMidYMax slice" style="width:100%; height:100%; display:block;">
+      <!-- Baum links -->
+      <rect x="50" y="170" width="10" height="50" fill="#a9793d"/>
+      <circle cx="55" cy="150" r="32" fill="var(--salbei)"/>
+      <!-- Haus 1 (Altrosa, Giebeldach) -->
+      <rect x="140" y="130" width="130" height="90" fill="var(--altrosa)" stroke="var(--altrosa-dark)" stroke-width="3"/>
+      <path d="M132,130 L205,78 L278,130 Z" fill="var(--altrosa-dark)"/>
+      <rect x="165" y="155" width="26" height="26" fill="#fdf8ec" stroke="var(--altrosa-dark)" stroke-width="2.5"/>
+      <rect x="210" y="155" width="26" height="26" fill="#fdf8ec" stroke="var(--altrosa-dark)" stroke-width="2.5"/>
+      <rect x="188" y="190" width="24" height="30" fill="var(--altrosa-dark)"/>
+      <!-- Laterne (freie Luecke) -->
+      <rect x="312" y="140" width="6" height="80" fill="#6b5a45"/>
+      <circle cx="315" cy="132" r="11" fill="#fdf3d6" stroke="#6b5a45" stroke-width="2.5"/>
+      <!-- Schule (Hellblau, groesser, mit Glockentuermchen) -->
+      <rect x="360" y="110" width="220" height="110" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="3.5"/>
+      <path d="M350,110 L470,52 L590,110 Z" fill="var(--hellblau-dark)"/>
+      <rect x="455" y="30" width="30" height="26" fill="var(--hellblau-dark)"/>
+      <circle cx="470" cy="26" r="9" fill="var(--hellblau-dark)"/>
+      <rect x="385" y="140" width="28" height="28" fill="#fdf8ec" stroke="var(--hellblau-dark)" stroke-width="2.5"/>
+      <rect x="430" y="140" width="28" height="28" fill="#fdf8ec" stroke="var(--hellblau-dark)" stroke-width="2.5"/>
+      <rect x="475" y="140" width="28" height="28" fill="#fdf8ec" stroke="var(--hellblau-dark)" stroke-width="2.5"/>
+      <rect x="520" y="140" width="28" height="28" fill="#fdf8ec" stroke="var(--hellblau-dark)" stroke-width="2.5"/>
+      <rect x="442" y="182" width="36" height="38" fill="var(--hellblau-dark)"/>
+      <!-- Haus 2 (Salbei, Flachdach) -->
+      <rect x="620" y="145" width="110" height="75" fill="var(--salbei)" stroke="var(--salbei-dark)" stroke-width="3"/>
+      <rect x="610" y="130" width="130" height="16" rx="3" fill="var(--salbei-dark)"/>
+      <rect x="645" y="168" width="24" height="24" fill="#fdf8ec" stroke="var(--salbei-dark)" stroke-width="2.5"/>
+      <rect x="690" y="195" width="24" height="25" fill="var(--salbei-dark)"/>
+      <!-- Baum 2 -->
+      <rect x="800" y="175" width="9" height="45" fill="#a9793d"/>
+      <circle cx="805" cy="158" r="27" fill="var(--salbei)"/>
+      <!-- Kirche mit Kirchturmuhr (Mittelpunkt der Stadt) -->
+      <rect x="880" y="162" width="230" height="58" fill="#efe6d4" stroke="#b8a788" stroke-width="3"/>
+      <path d="M955,162 L955,98 L1035,98 L1035,162 Z" fill="#efe6d4" stroke="#b8a788" stroke-width="3"/>
+      <path d="M947,98 L995,52 L1043,98 Z" fill="var(--terrakotta-dark)"/>
+      <line x1="995" y1="52" x2="995" y2="34" stroke="var(--terrakotta-dark)" stroke-width="3.5"/>
+      <line x1="987" y1="40" x2="1003" y2="40" stroke="var(--terrakotta-dark)" stroke-width="3.5"/>
+      <circle cx="995" cy="122" r="23" fill="#fdf8ec" stroke="var(--ink)" stroke-width="3.5"/>
+      <g stroke="var(--ink)" stroke-width="2">
+        <line x1="995" y1="102" x2="995" y2="106"/>
+        <line x1="995" y1="138" x2="995" y2="142"/>
+        <line x1="975" y1="122" x2="979" y2="122"/>
+        <line x1="1011" y1="122" x2="1015" y2="122"/>
+      </g>
+      <line x1="995" y1="122" x2="995" y2="107" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="995" y1="122" x2="1005" y2="122" stroke="var(--terrakotta-dark)" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="995" cy="122" r="2.6" fill="var(--ink)"/>
+      <path d="M978,220 V198 a17,17 0 0 1 34,0 V220 Z" fill="var(--terrakotta-dark)"/>
+      <rect x="905" y="182" width="22" height="26" rx="11" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="2.5"/>
+      <rect x="1063" y="182" width="22" height="26" rx="11" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="2.5"/>
+      <!-- Haus 3 (Gelb, Giebeldach) -->
+      <rect x="1150" y="135" width="115" height="85" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="3"/>
+      <path d="M1142,135 L1207,88 L1272,135 Z" fill="var(--gelb-dark)"/>
+      <rect x="1173" y="160" width="25" height="25" fill="#fdf8ec" stroke="var(--gelb-dark)" stroke-width="2.5"/>
+      <rect x="1217" y="160" width="25" height="25" fill="#fdf8ec" stroke="var(--gelb-dark)" stroke-width="2.5"/>
+      <rect x="1194" y="192" width="26" height="28" fill="var(--gelb-dark)"/>
+      <!-- Laterne (freie Luecke) -->
+      <rect x="1305" y="140" width="6" height="80" fill="#6b5a45"/>
+      <circle cx="1308" cy="132" r="11" fill="#fdf3d6" stroke="#6b5a45" stroke-width="2.5"/>
+      <!-- Baeckerei (Terrakotta, Markise) -->
+      <rect x="1355" y="140" width="160" height="80" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/>
+      <path d="M1350,140 H1520 L1510,165 H1360 Z" fill="#fdf8ec" stroke="var(--terrakotta-dark)" stroke-width="2.5"/>
+      <path d="M1360,165 L1370,150 L1382,165 L1394,150 L1406,165 L1418,150 L1430,165 L1442,150 L1454,165 L1466,150 L1478,165 L1490,150 L1500,165 L1510,150 L1510,165 Z" fill="var(--terrakotta-dark)"/>
+      <rect x="1385" y="180" width="30" height="40" fill="#fdf8ec" stroke="var(--terrakotta-dark)" stroke-width="2.5"/>
+      <circle cx="1400" cy="196" r="9" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="2"/>
+      <rect x="1455" y="175" width="26" height="26" fill="#fdf8ec" stroke="var(--terrakotta-dark)" stroke-width="2.5"/>
+      <!-- Haus 4 (Hellblau klein, Giebeldach) -->
+      <rect x="1555" y="150" width="100" height="70" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="3"/>
+      <path d="M1548,150 L1605,108 L1662,150 Z" fill="var(--hellblau-dark)"/>
+      <rect x="1575" y="172" width="24" height="24" fill="#fdf8ec" stroke="var(--hellblau-dark)" stroke-width="2.5"/>
+      <rect x="1615" y="188" width="24" height="32" fill="var(--hellblau-dark)"/>
+      <!-- Baum 3 -->
+      <rect x="1725" y="172" width="9" height="48" fill="#a9793d"/>
+      <circle cx="1730" cy="153" r="29" fill="var(--salbei)"/>
+      <!-- Haus 5 (Altrosa, Flachdach) -->
+      <rect x="1805" y="148" width="115" height="72" fill="var(--altrosa)" stroke="var(--altrosa-dark)" stroke-width="3"/>
+      <rect x="1795" y="133" width="135" height="16" rx="3" fill="var(--altrosa-dark)"/>
+      <rect x="1830" y="170" width="25" height="25" fill="#fdf8ec" stroke="var(--altrosa-dark)" stroke-width="2.5"/>
+      <rect x="1875" y="195" width="25" height="25" fill="var(--altrosa-dark)"/>
+      <!-- Bodenlinie -->
+      <rect x="0" y="219" width="2000" height="21" fill="var(--panel-edge)" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <header>
+    <div class="brand">🕐 Uhrenstadt</div>
+    <div class="header-btns">
+      <button class="icon-btn" id="btn-sound" aria-label="Ton an/aus" aria-pressed="true">🔊</button>
+    </div>
+  </header>
+
+  <!-- START -->
+  <div class="screen" id="screen-start">
+    <h1 class="title-big">🕐 Uhrenstadt</h1>
+    <p class="subtitle-big">Uhrzeit lernen &amp; Zeitspannen berechnen</p>
+    <p class="intro-line">Was möchtest du üben?</p>
+    <div class="mode-grid" id="mode-grid"></div>
+    <p class="brand-footer">Förderfreude Games</p>
+  </div>
+
+  <!-- UNTERAUSWAHL -->
+  <div class="screen screen-center" id="screen-sub" hidden>
+    <button class="back-btn" id="btn-sub-back" style="position:absolute; left:3vw; top:8vh;">← Zurück</button>
+    <h2 class="sub-title" id="sub-title"></h2>
+    <div class="sub-choices" id="sub-choices"></div>
+  </div>
+
+  <!-- SPIEL -->
+  <div class="screen" id="screen-game" hidden>
+    <div class="progress-row">
+      <button class="back-btn" id="btn-game-back" style="margin-right:auto;">← Zurück</button>
+      <div class="progress-clocks" id="progress-clocks"></div>
+      <div class="progress-num"><span id="progress-count">0</span> von 8</div>
+    </div>
+    <div class="task-wrap">
+      <div class="task-stage" id="task-stage">
+        <svg class="stage-glow" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <circle cx="6" cy="94" r="30" fill="var(--salbei)"/>
+          <circle cx="95" cy="4" r="22" fill="var(--altrosa)"/>
+          <circle cx="88" cy="80" r="16" fill="var(--gelb)"/>
+          <circle cx="14" cy="10" r="13" fill="var(--hellblau)"/>
+          <circle cx="50" cy="98" r="10" fill="var(--terrakotta)"/>
+        </svg>
+        <div class="prompt-row">
+          <button class="speak-btn" id="btn-speak-task" aria-label="Vorlesen">🔊</button>
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+        <div class="task-body" id="task-body"></div>
+        <div class="feedback-msg" id="feedback-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENDE -->
+  <div class="screen" id="screen-end" hidden>
+    <div class="end-clock-wrap" id="end-clock-wrap"></div>
+    <h2 class="end-title">Geschafft! 🎉</h2>
+    <p class="end-sub">Du kennst dich mit der Uhr schon richtig gut aus!</p>
+    <div class="end-actions">
+      <button class="btn-primary" id="btn-again">Noch eine Runde</button>
+      <button class="btn-secondary" id="btn-other-mode">Anderen Modus wählen</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  const ROUND_TARGET = 8;
+
+  /* =========================================================
+     ZEIT-KERNFUNKTIONEN (Minuten seit 00:00)
+     ========================================================= */
+  function timeToMinutes(h,m){ return h*60+m; }
+  function minutesToTime(total){
+    const norm = ((total % 1440) + 1440) % 1440;
+    return { h: Math.floor(norm/60), m: norm%60 };
+  }
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function formatTime(h,m){ return `${h}:${pad2(m)} Uhr`; }
+  function formatTimeT(t){ return formatTime(t.h, t.m); }
+  function addMinutes(total, delta){ return total+delta; }
+  function subtractMinutes(total, delta){ return total-delta; }
+  function durationBetween(start,end){ return end-start; }
+  function formatDuration(mins){
+    const h = Math.floor(mins/60), m = mins%60;
+    if(h===0) return `${m} Minuten`;
+    if(m===0) return `${h} Stunde${h>1?'n':''}`;
+    return `${h} Stunde${h>1?'n':''} ${m} Minuten`;
+  }
+  function hourHandAngle(h,m){ return (h%12)*30 + m*0.5; }
+  function minuteHandAngle(m){ return m*6; }
+  function spokenTime(h,m){
+    const words = ['null','eins','zwei','drei','vier','fünf','sechs','sieben','acht','neun','zehn','elf','zwölf','dreizehn','vierzehn','fünfzehn','sechzehn','siebzehn','achtzehn','neunzehn','zwanzig','einundzwanzig','zweiundzwanzig','dreiundzwanzig'];
+    const hw = words[h] || h;
+    if(m===0) return `${hw} Uhr`;
+    const mw = m<10 ? 'null ' + words[m] : (words[m] || m);
+    return `${hw} Uhr ${mw}`;
+  }
+
+  /* =========================================================
+     ZUFALLSHELFER
+     ========================================================= */
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  const LEVEL_MINUTES = {
+    1: [0],
+    2: [0,30],
+    3: [0,15,30,45],
+    4: [0,5,10,15,20,25,30,35,40,45,50,55],
+    5: null // beliebig 0-59
+  };
+  function randomMinuteForLevel(level){
+    const pool = LEVEL_MINUTES[level];
+    if(pool===null) return randInt(0,59);
+    return pick(pool);
+  }
+  function randomTimeForLevel(level, hMin, hMax){
+    const h = randInt(hMin===undefined?0:hMin, hMax===undefined?23:hMax);
+    const m = randomMinuteForLevel(level);
+    return { h, m };
+  }
+
+  function uniqueTimeDistractors(correct, count, variants, hMin, hMax){
+    hMin = hMin===undefined?0:hMin; hMax = hMax===undefined?23:hMax;
+    const key = t => t.h*60+t.m;
+    const opts = new Map([[key(correct), correct]]);
+    let guard=0;
+    while(opts.size < count+1 && guard<60){
+      guard++;
+      const v = pick(variants)(correct);
+      if(!v) continue;
+      let h = ((v.h % 24)+24)%24, m = ((v.m%60)+60)%60;
+      if(h<hMin || h>hMax) continue;
+      opts.set(key({h,m}), {h,m});
+    }
+    let guard2=0;
+    while(opts.size < count+1 && guard2<80){
+      guard2++;
+      const h = randInt(hMin,hMax), m = randomMinuteForLevel(5);
+      opts.set(key({h,m}), {h,m});
+    }
+    return shuffle(Array.from(opts.values()));
+  }
+  function timeVariants(){
+    return [
+      t => ({h:t.h+1, m:t.m}),
+      t => ({h:t.h-1, m:t.m}),
+      t => t.m===15 ? {h:t.h, m:45} : t.m===45 ? {h:t.h,m:15} : null,
+      t => t.m===20 ? {h:t.h, m:40} : t.m===40 ? {h:t.h,m:20} : null,
+      t => ({h:t.h, m: ((t.m+5)%60)}),
+      t => ({h:t.h, m: ((t.m-5+60)%60)}),
+      t => ({h:t.h+1, m: ((t.m+5)%60)}),
+    ];
+  }
+
+  /* =========================================================
+     TAGESKONTEXT-POOL (fuer Vormittag/Nachmittag + Tagesablauf)
+     ========================================================= */
+  const NAMES = ['Mila','Finn','Lea','Ben','Nora','Tom','Ida','Max','Zoe','Theo'];
+  const SITUATIONS_AM = [
+    { icon:'fruehstueck', text:'{name} frühstückt morgens.', hour:[7,8] },
+    { icon:'schule', text:'Die Schule beginnt.', hour:[8] },
+    { icon:'pause', text:'{name} hat Pause auf dem Schulhof.', hour:[9,10] },
+    { icon:'mittag', text:'{name} isst zu Mittag.', hour:[13] },
+    { icon:'schwimmen', text:'{name} hat vormittags Schwimmkurs.', hour:[9,10,11] },
+    { icon:'bus', text:'{name} wartet morgens auf den Schulbus.', hour:[7,8] },
+  ];
+  const SITUATIONS_PM = [
+    { icon:'hausaufgaben', text:'{name} macht Hausaufgaben am Nachmittag.', hour:[15,16] },
+    { icon:'spielplatz', text:'{name} ist nachmittags auf dem Spielplatz.', hour:[16,17] },
+    { icon:'sport', text:'{name} geht nachmittags zum Turnen.', hour:[16,17,18] },
+    { icon:'fussball', text:'{name} geht nachmittags zum Fußball.', hour:[16,17] },
+    { icon:'musik', text:'{name} hat am Nachmittag Musikunterricht.', hour:[15,16] },
+    { icon:'abendessen', text:'{name} isst heute Abend zu Abend.', hour:[18,19] },
+    { icon:'schlafen', text:'{name} geht heute um diese Zeit schlafen.', hour:[19,20,21] },
+  ];
+  function pickSituation(){
+    const isAM = Math.random()<0.5;
+    const pool = isAM ? SITUATIONS_AM : SITUATIONS_PM;
+    const unused = pool.filter(s => !state.usedIcons.has(s.icon));
+    const sit = unused.length>0 ? pick(unused) : pick(pool);
+    state.usedIcons.add(sit.icon);
+    const name = pick(NAMES);
+    const hour24 = pick(sit.hour);
+    const text = sit.text.replace('{name}', name);
+    return { icon:sit.icon, text, hour24, isAM };
+  }
+
+  const DAY_EVENTS = [
+    { icon:'fruehstueck', label:'Frühstück', hour:[7], min:[0,30] },
+    { icon:'schule', label:'Schulbeginn', hour:[8], min:[0] },
+    { icon:'pause', label:'Pause', hour:[9,10], min:[0,15,30] },
+    { icon:'mittag', label:'Mittagessen', hour:[12,13], min:[0,15,30] },
+    { icon:'hausaufgaben', label:'Hausaufgaben', hour:[14,15], min:[0,30] },
+    { icon:'spielplatz', label:'Spielplatz', hour:[15,16], min:[0,30] },
+    { icon:'sport', label:'Turnen', hour:[16,17], min:[0,30] },
+    { icon:'fussball', label:'Fußballtraining', hour:[16,17], min:[0,30] },
+    { icon:'schwimmen', label:'Schwimmkurs', hour:[9,10,11], min:[0,30] },
+    { icon:'musik', label:'Musikunterricht', hour:[15,16], min:[0,30] },
+    { icon:'abendessen', label:'Abendessen', hour:[18,19], min:[0,30] },
+    { icon:'schlafen', label:'Schlafengehen', hour:[20,21], min:[0,30] },
+  ];
+
+  function daySvg(key){
+    switch(key){
+      case 'fruehstueck': return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="72" rx="36" ry="8" fill="var(--panel-edge)"/><path d="M28,60 Q28,36 50,36 Q72,36 72,60 Z" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="4"/><rect x="20" y="58" width="60" height="8" rx="4" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/></svg>`;
+      case 'schule': return `<svg viewBox="0 0 100 100"><rect x="18" y="40" width="64" height="44" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="4"/><path d="M14,40 L50,16 L86,40 Z" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="4"/><rect x="42" y="60" width="16" height="24" fill="var(--terrakotta-dark)"/></svg>`;
+      case 'pause': return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="var(--salbei)" stroke="var(--salbei-dark)" stroke-width="4"/><circle cx="50" cy="50" r="22" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="6 6"/></svg>`;
+      case 'mittag': return `<svg viewBox="0 0 100 100"><circle cx="50" cy="55" r="34" fill="#fdf8ec" stroke="var(--muted)" stroke-width="4"/><circle cx="50" cy="55" r="20" fill="var(--terrakotta)"/><rect x="46" y="14" width="8" height="26" rx="3" fill="var(--muted)"/></svg>`;
+      case 'hausaufgaben': return `<svg viewBox="0 0 100 100"><rect x="20" y="18" width="60" height="64" rx="4" fill="#fdf8ec" stroke="var(--muted)" stroke-width="4"/><line x1="30" y1="36" x2="70" y2="36" stroke="var(--hellblau-dark)" stroke-width="4"/><line x1="30" y1="50" x2="70" y2="50" stroke="var(--hellblau-dark)" stroke-width="4"/><line x1="30" y1="64" x2="55" y2="64" stroke="var(--hellblau-dark)" stroke-width="4"/></svg>`;
+      case 'spielplatz': return `<svg viewBox="0 0 100 100"><path d="M20,86 L20,20 M20,20 L70,38 L20,56" fill="none" stroke="var(--terrakotta-dark)" stroke-width="5" stroke-linejoin="round"/><circle cx="70" cy="38" r="0" /><path d="M20,56 L70,38" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="3"/></svg>`;
+      case 'sport': return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="36" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="4"/><path d="M50,18 L58,40 L82,40 L62,54 L70,78 L50,64 L30,78 L38,54 L18,40 L42,40 Z" fill="#fff" opacity="0.85"/></svg>`;
+      case 'abendessen': return `<svg viewBox="0 0 100 100"><circle cx="50" cy="55" r="34" fill="#fdf8ec" stroke="var(--muted)" stroke-width="4"/><circle cx="50" cy="55" r="16" fill="var(--hellblau)"/><circle cx="78" cy="22" r="10" fill="var(--gelb)"/></svg>`;
+      case 'schlafen': return `<svg viewBox="0 0 100 100"><path d="M60,20 a32,32 0 1 0 20,54 a26,26 0 0 1 -20,-54 Z" fill="var(--hellblau-dark)"/><circle cx="24" cy="26" r="3" fill="var(--gelb)"/><circle cx="34" cy="18" r="2" fill="var(--gelb)"/><circle cx="16" cy="40" r="2" fill="var(--gelb)"/></svg>`;
+      case 'schwimmen': return `<svg viewBox="0 0 100 100"><rect x="10" y="62" width="80" height="22" rx="8" fill="var(--hellblau)"/><path d="M14,50 Q24,40 34,50 Q44,60 54,50 Q64,40 74,50 Q80,55 86,50" fill="none" stroke="var(--hellblau-dark)" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="28" r="10" fill="#dcb583"/></svg>`;
+      case 'fussball': return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="36" fill="#fff" stroke="var(--ink)" stroke-width="3"/><path d="M50,28 L62,38 L58,52 L42,52 L38,38 Z" fill="var(--ink)"/><path d="M50,28 L50,16 M62,38 L74,32 M58,52 L66,66 M42,52 L34,66 M38,38 L26,32" stroke="var(--ink)" stroke-width="2.5" fill="none"/></svg>`;
+      case 'musik': return `<svg viewBox="0 0 100 100"><circle cx="30" cy="72" r="12" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/><circle cx="68" cy="64" r="12" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/><path d="M42,72 V28 L80,20 V64" fill="none" stroke="var(--terrakotta-dark)" stroke-width="4"/></svg>`;
+      case 'bus': return `<svg viewBox="0 0 100 100"><rect x="14" y="30" width="72" height="42" rx="8" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="4"/><rect x="22" y="38" width="18" height="16" fill="#eaf6fa" stroke="var(--gelb-dark)" stroke-width="2"/><rect x="48" y="38" width="18" height="16" fill="#eaf6fa" stroke="var(--gelb-dark)" stroke-width="2"/><circle cx="30" cy="76" r="9" fill="#3a3226"/><circle cx="70" cy="76" r="9" fill="#3a3226"/></svg>`;
+      default: return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="var(--muted)"/></svg>`;
+    }
+  }
+  function buildDayIcon(key){ const d=document.createElement('div'); d.className='day-icon'; d.innerHTML=daySvg(key); return d; }
+
+  /* =========================================================
+     ANALOGE UHR (SVG) - zentrale, mathematisch korrekte Darstellung
+     ========================================================= */
+  function buildClockSvg(h, m, opts){
+    opts = opts || {};
+    const size = 200, cx=100, cy=100, r=90;
+    let svg = `<svg viewBox="0 0 ${size} ${size}" aria-hidden="true">`;
+    svg += `<circle class="clock-face" cx="${cx}" cy="${cy}" r="${r}" stroke-width="4"/>`;
+    // 60 Minutenmarkierungen
+    for(let i=0;i<60;i++){
+      const ang = i*6 * Math.PI/180;
+      const isMajor = i%5===0;
+      const rOuter = r-4;
+      const rInner = isMajor ? r-14 : r-8;
+      const x1 = cx + rOuter*Math.sin(ang), y1 = cy - rOuter*Math.cos(ang);
+      const x2 = cx + rInner*Math.sin(ang), y2 = cy - rInner*Math.cos(ang);
+      svg += `<line class="${isMajor?'tick-major':'tick-minor'}" x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke-width="${isMajor?3:1.3}"/>`;
+    }
+    // Zahlen 1-12
+    if(!opts.noNumbers){
+      const rNum = r-26;
+      for(let n=1;n<=12;n++){
+        const ang = n*30 * Math.PI/180;
+        const x = cx + rNum*Math.sin(ang), y = cy - rNum*Math.cos(ang);
+        svg += `<text class="clock-num" x="${x.toFixed(2)}" y="${y.toFixed(2)}" font-size="${opts.numFontSize||16}">${n}</text>`;
+      }
+    }
+    // Zeiger
+    const hA = hourHandAngle(h,m), mA = minuteHandAngle(m);
+    const hLen = r*0.5, mLen = r*0.78;
+    const hx = cx + hLen*Math.sin(hA*Math.PI/180), hy = cy - hLen*Math.cos(hA*Math.PI/180);
+    const mx = cx + mLen*Math.sin(mA*Math.PI/180), my = cy - mLen*Math.cos(mA*Math.PI/180);
+    svg += `<line class="hand-hour" x1="${cx}" y1="${cy}" x2="${hx.toFixed(2)}" y2="${hy.toFixed(2)}" stroke-width="7"/>`;
+    svg += `<line class="hand-minute" x1="${cx}" y1="${cy}" x2="${mx.toFixed(2)}" y2="${my.toFixed(2)}" stroke-width="4.5"/>`;
+    svg += `<circle class="hand-center" cx="${cx}" cy="${cy}" r="6"/>`;
+    svg += `</svg>`;
+    return svg;
+  }
+  function buildClockEl(h, m, opts){
+    const wrap = document.createElement('div');
+    wrap.className = 'clock-wrap' + (opts && opts.small ? ' small' : '');
+    wrap.innerHTML = buildClockSvg(h, m, opts);
+    wrap.setAttribute('role','img');
+    wrap.setAttribute('aria-label', `Uhr zeigt ${formatTime(h,m)}`);
+    return wrap;
+  }
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+  const state = { mode:null, level:null, soundOn:true, progress:0, locked:false, currentTask:null, usedIcons: new Set() };
+  let taskSelection = null;
+
+  let pendingTimers = [];
+  function after(ms, fn){
+    const id = setTimeout(()=>{ pendingTimers = pendingTimers.filter(t=>t!==id); try{ fn(); }catch(err){ state.locked=false; } }, ms);
+    pendingTimers.push(id); return id;
+  }
+  function clearPendingTimers(){ pendingTimers.forEach(id=>clearTimeout(id)); pendingTimers=[]; }
+  let lockedSince=null;
+  setInterval(()=>{ if(state.locked){ if(lockedSince===null) lockedSince=Date.now(); else if(Date.now()-lockedSince>5000){ state.locked=false; lockedSince=null; } } else lockedSince=null; }, 500);
+
+  const els = {
+    screenStart: document.getElementById('screen-start'),
+    screenSub: document.getElementById('screen-sub'),
+    screenGame: document.getElementById('screen-game'),
+    screenEnd: document.getElementById('screen-end'),
+    btnSound: document.getElementById('btn-sound'),
+    modeGrid: document.getElementById('mode-grid'),
+    subTitle: document.getElementById('sub-title'),
+    subChoices: document.getElementById('sub-choices'),
+    btnSubBack: document.getElementById('btn-sub-back'),
+    btnGameBack: document.getElementById('btn-game-back'),
+    progressClocks: document.getElementById('progress-clocks'),
+    progressCount: document.getElementById('progress-count'),
+    promptText: document.getElementById('prompt-text'),
+    btnSpeakTask: document.getElementById('btn-speak-task'),
+    taskBody: document.getElementById('task-body'),
+    feedbackMsg: document.getElementById('feedback-msg'),
+    endClockWrap: document.getElementById('end-clock-wrap'),
+  };
+
+  /* =========================================================
+     SPRACHAUSGABE
+     ========================================================= */
+  function speak(text){
+    try{
+      if(!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'de-DE'; u.rate = 0.95;
+      window.speechSynthesis.speak(u);
+    }catch(err){}
+  }
+  function setPrompt(text, spokenText){
+    els.promptText.textContent = text;
+    const toSpeak = spokenText || text;
+    els.btnSpeakTask.onclick = () => speak(toSpeak);
+  }
+  function showFeedback(msg, good){
+    els.feedbackMsg.textContent = msg;
+    els.feedbackMsg.classList.toggle('good', !!good);
+    els.feedbackMsg.classList.add('show');
+  }
+  function triggerWrongEl(el){ el.classList.add('wrong-shake'); after(420, ()=>el.classList.remove('wrong-shake')); }
+  const GOOD_FEEDBACK = ['Richtig!','Super!','Genau!','Das stimmt!','Klasse gemacht!'];
+  const BAD_FEEDBACK = ['Fast! Schau dir die Uhr noch einmal an.','Probier es noch einmal.','Schau genau auf den Stunden- und Minutenzeiger.'];
+
+  /* =========================================================
+     MODUS-DEFINITIONEN
+     ========================================================= */
+  const LEVEL_LABELS = { 1:{label:'Volle Stunden', dot:'var(--salbei-dark)'}, 2:{label:'Volle & halbe Stunden', dot:'var(--gelb-dark)'}, 3:{label:'Viertelstunden', dot:'var(--terrakotta-dark)'}, 4:{label:'5-Minuten-Schritte', dot:'var(--hellblau-dark)'}, 5:{label:'Minutengenau', dot:'var(--altrosa-dark)'} };
+  const DURATION_LEVELS = { leicht:{label:'Leicht', dot:'var(--salbei-dark)'}, mittel:{label:'Mittel', dot:'var(--gelb-dark)'}, schwer:{label:'Schwer', dot:'var(--altrosa-dark)'} };
+
+  const MODES = [
+    { key:'wieSpaet', cls:'c1', title:'🕐 Wie spät ist es?', sub:'Uhr ablesen', icon:'clock1', levels:[1,2,3,4,5] },
+    { key:'stellUhr', cls:'c2', title:'⏰ Stell die Uhr!', sub:'Zeiger einstellen', icon:'clock2', levels:[1,2,3,4,5] },
+    { key:'welcheUhr', cls:'c3', title:'🕒 Welche Uhr stimmt?', sub:'Uhr erkennen', icon:'clock3', levels:[1,2,3,4,5] },
+    { key:'analogDigital', cls:'c4', title:'🔄 Analog & digital', sub:'Zuordnen', icon:'sync', levels:[1,2,3,4,5] },
+    { key:'vorNach', cls:'c5', title:'🌞 Vormittag/Nachmittag?', sub:'Tageszeit', icon:'sun', levels:null },
+    { key:'zeitVergeht', cls:'c6', title:'⏳ Wie viel Zeit vergeht?', sub:'Zeitspanne', icon:'hourglass', levels:['leicht','mittel','schwer'] },
+    { key:'spaeterDann', cls:'c7', title:'➡️ Wie spät ist es dann?', sub:'Vorwärts rechnen', icon:'arrow-r', levels:['leicht','mittel','schwer'] },
+    { key:'frueherVorher', cls:'c8', title:'⬅️ Wie spät war es vorher?', sub:'Rückwärts rechnen', icon:'arrow-l', levels:['leicht','mittel','schwer'] },
+    { key:'tagesablauf', cls:'c9', title:'🏫 Mein Tagesablauf', sub:'Alltag & Uhrzeit', icon:'day', levels:null },
+  ];
+
+  function modeIconSvg(key){
+    switch(key){
+      case 'clock1': return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#fdf8ec" stroke="var(--terrakotta-dark)" stroke-width="5"/><line x1="50" y1="50" x2="50" y2="28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/><line x1="50" y1="50" x2="68" y2="58" stroke="var(--terrakotta-dark)" stroke-width="4" stroke-linecap="round"/></svg>`;
+      case 'clock2': return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#fdf8ec" stroke="var(--salbei-dark)" stroke-width="5"/><line x1="50" y1="50" x2="50" y2="30" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/><line x1="50" y1="50" x2="70" y2="50" stroke="var(--terrakotta-dark)" stroke-width="4" stroke-linecap="round"/><path d="M78,30 a6,6 0 1 1 -6,-6" fill="none" stroke="var(--salbei-dark)" stroke-width="4" stroke-linecap="round"/><path d="M76,20 l4,4 l-2,5" fill="none" stroke="var(--salbei-dark)" stroke-width="3" stroke-linecap="round"/></svg>`;
+      case 'clock3': return `<svg viewBox="0 0 100 100"><circle cx="34" cy="50" r="26" fill="#fdf8ec" stroke="var(--hellblau-dark)" stroke-width="4"/><line x1="34" y1="50" x2="34" y2="34" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><circle cx="76" cy="50" r="18" fill="#fdf8ec" stroke="var(--panel-edge)" stroke-width="3"/><path d="M68,42 L84,58 M84,42 L68,58" stroke="var(--altrosa-dark)" stroke-width="3" stroke-linecap="round"/></svg>`;
+      case 'sync': return `<svg viewBox="0 0 100 100"><path d="M20,50 a30,30 0 0 1 56,-18" fill="none" stroke="var(--gelb-dark)" stroke-width="6" stroke-linecap="round"/><path d="M78,20 l0,14 l-14,0" fill="none" stroke="var(--gelb-dark)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M80,50 a30,30 0 0 1 -56,18" fill="none" stroke="var(--terrakotta-dark)" stroke-width="6" stroke-linecap="round"/><path d="M22,80 l0,-14 l14,0" fill="none" stroke="var(--terrakotta-dark)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      case 'sun': return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="22" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="4"/><g stroke="var(--gelb-dark)" stroke-width="4" stroke-linecap="round"><line x1="50" y1="10" x2="50" y2="20"/><line x1="50" y1="80" x2="50" y2="90"/><line x1="10" y1="50" x2="20" y2="50"/><line x1="80" y1="50" x2="90" y2="50"/><line x1="22" y1="22" x2="29" y2="29"/><line x1="71" y1="71" x2="78" y2="78"/><line x1="78" y1="22" x2="71" y2="29"/><line x1="29" y1="71" x2="22" y2="78"/></g></svg>`;
+      case 'hourglass': return `<svg viewBox="0 0 100 100"><path d="M26,14 H74 V14 Q74,40 50,50 Q26,40 26,14 Z" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="4"/><path d="M26,86 H74 V86 Q74,60 50,50 Q26,60 26,86 Z" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="4"/><rect x="22" y="10" width="56" height="7" rx="2" fill="var(--terrakotta-dark)"/><rect x="22" y="83" width="56" height="7" rx="2" fill="var(--terrakotta-dark)"/></svg>`;
+      case 'arrow-r': return `<svg viewBox="0 0 100 100"><circle cx="38" cy="50" r="26" fill="#fdf8ec" stroke="var(--salbei-dark)" stroke-width="4"/><line x1="38" y1="50" x2="38" y2="34" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><line x1="38" y1="50" x2="50" y2="50" stroke="var(--terrakotta-dark)" stroke-width="3" stroke-linecap="round"/><path d="M62,50 H88 M78,40 L88,50 L78,60" fill="none" stroke="var(--terrakotta-dark)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      case 'arrow-l': return `<svg viewBox="0 0 100 100"><circle cx="62" cy="50" r="26" fill="#fdf8ec" stroke="var(--altrosa-dark)" stroke-width="4"/><line x1="62" y1="50" x2="62" y2="34" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="50" x2="74" y2="50" stroke="var(--terrakotta-dark)" stroke-width="3" stroke-linecap="round"/><path d="M38,50 H12 M22,40 L12,50 L22,60" fill="none" stroke="var(--altrosa-dark)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      case 'day': return `<svg viewBox="0 0 100 100"><rect x="18" y="38" width="64" height="46" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="4"/><path d="M14,38 L50,14 L86,38 Z" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="4"/><circle cx="50" cy="60" r="12" fill="#fff" stroke="var(--hellblau-dark)" stroke-width="3"/><line x1="50" y1="60" x2="50" y2="52" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/><line x1="50" y1="60" x2="56" y2="60" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/></svg>`;
+      default: return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="var(--muted)"/></svg>`;
+    }
+  }
+
+  function buildStartScreen(){
+    els.modeGrid.innerHTML = '';
+    MODES.forEach(m => {
+      const card = document.createElement('button');
+      card.className = 'mode-card ' + m.cls;
+      card.innerHTML = `<div class="mode-icon">${modeIconSvg(m.icon)}</div><div class="mode-title">${m.title}</div><div class="mode-sub">${m.sub}</div>`;
+      card.addEventListener('click', () => onModeCardClick(m));
+      els.modeGrid.appendChild(card);
+    });
+  }
+  function onModeCardClick(modeDef){
+    state.mode = modeDef.key;
+    if(modeDef.levels){ showSubScreen(modeDef); }
+    else { state.level = null; startRound(); }
+  }
+  function showSubScreen(modeDef){
+    els.subTitle.textContent = modeDef.title;
+    els.subChoices.innerHTML = '';
+    const isDuration = typeof modeDef.levels[0] === 'string';
+    modeDef.levels.forEach(lv => {
+      const info = isDuration ? DURATION_LEVELS[lv] : LEVEL_LABELS[lv];
+      const card = document.createElement('button');
+      card.className = 'sub-card';
+      card.innerHTML = `<span class="sub-dot" style="background:${info.dot};"></span><span>${info.label}</span>`;
+      card.addEventListener('click', () => { state.level = lv; startRound(); });
+      els.subChoices.appendChild(card);
+    });
+    els.screenStart.hidden = true; els.screenSub.hidden = false;
+  }
+  els.btnSubBack.addEventListener('click', () => { els.screenSub.hidden = true; els.screenStart.hidden = false; });
+  els.btnGameBack.addEventListener('click', () => {
+    clearPendingTimers(); try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+    els.screenGame.hidden = true; els.screenStart.hidden = false;
+  });
+  els.btnSound.addEventListener('click', () => {
+    state.soundOn = !state.soundOn;
+    els.btnSound.textContent = state.soundOn ? '🔊' : '🔇';
+    els.btnSound.setAttribute('aria-pressed', String(state.soundOn));
+  });
+
+  /* =========================================================
+     FORTSCHRITT / RUNDE
+     ========================================================= */
+  function buildProgressClocks(){
+    els.progressClocks.innerHTML = '';
+    for(let i=0;i<ROUND_TARGET;i++){ const c=document.createElement('div'); c.className='mini-clock'; els.progressClocks.appendChild(c); }
+  }
+  function onTaskSuccess(){
+    state.progress = Math.min(ROUND_TARGET, state.progress+1);
+    els.progressCount.textContent = state.progress;
+    const clocks = els.progressClocks.children;
+    if(clocks[state.progress-1]) clocks[state.progress-1].classList.add('lit');
+    if(state.progress >= ROUND_TARGET) after(500, endRound);
+    else after(400, () => newTask());
+  }
+  function startRound(){
+    clearPendingTimers(); try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+    state.progress = 0; state.locked = false; state.usedIcons = new Set();
+    els.screenStart.hidden = true; els.screenSub.hidden = true; els.screenEnd.hidden = true;
+    els.screenGame.hidden = false;
+    els.progressCount.textContent = '0';
+    buildProgressClocks();
+    newTask();
+  }
+  function endRound(){
+    clearPendingTimers();
+    els.screenGame.hidden = true; els.screenEnd.hidden = false;
+    els.endClockWrap.innerHTML = '';
+    els.endClockWrap.appendChild(buildClockEl(randInt(1,12)%12, 0));
+    sndWin(); runConfetti();
+  }
+  document.getElementById('btn-again').addEventListener('click', () => { els.screenEnd.hidden = true; startRound(); });
+  document.getElementById('btn-other-mode').addEventListener('click', () => { els.screenEnd.hidden = true; els.screenStart.hidden = false; });
+
+  /* =========================================================
+     SOUND
+     ========================================================= */
+  let actx = null;
+  function ensureAudio(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+  document.addEventListener('pointerdown', ensureAudio, { once:true });
+  function tone(freq, dur, type, gainPeak, delay){
+    if(!state.soundOn || !actx) return;
+    try{
+      const t0 = actx.currentTime + (delay||0);
+      const osc = actx.createOscillator(); const gain = actx.createGain();
+      osc.type = type||'sine'; osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0, t0); gain.gain.linearRampToValueAtTime(gainPeak||0.14, t0+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+      osc.connect(gain).connect(actx.destination); osc.start(t0); osc.stop(t0+dur+0.03);
+    }catch(err){}
+  }
+  function sndWin(){ [523,659,784,1046,1318].forEach((f,i)=>tone(f,0.3,'triangle',0.13,i*0.11)); }
+  function runConfetti(){
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:30;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const colors = ['#d98a92','#8fa888','#eec14a','#d97e55','#8fb9c9'];
+    const pieces = Array.from({length:90}, () => ({ x: Math.random()*canvas.width, y:-20-Math.random()*canvas.height*0.5, w:4+Math.random()*6, h:6+Math.random()*10, vy:2+Math.random()*3, vx:-1+Math.random()*2, rot:Math.random()*360, vr:-6+Math.random()*12, color: colors[Math.floor(Math.random()*colors.length)] }));
+    let frames = 0;
+    function loop(){
+      frames++; ctx.clearRect(0,0,canvas.width,canvas.height);
+      pieces.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore(); });
+      if(frames<200) requestAnimationFrame(loop); else canvas.remove();
+    }
+    loop();
+  }
+
+  /* =========================================================
+     AUFGABEN-GENERATOREN
+     ========================================================= */
+  function genWieSpaet(level){
+    // Ohne Tageskontext sieht 22:00 auf der Uhr exakt wie 10:00 aus - deshalb hier bewusst
+    // nur Stunden 1-12 verwenden (keine 24h-Unterscheidung ohne Kontext verlangen).
+    const t = randomTimeForLevel(level, 1, 12);
+    const options = uniqueTimeDistractors(t, 3, timeVariants(), 1, 12);
+    return { kind:'wieSpaet', time:t, options };
+  }
+  function genStellUhr(level){
+    const t = randomTimeForLevel(level, 0, 23);
+    return { kind:'stellUhr', target:t };
+  }
+  function genWelcheUhr(level){
+    const t = randomTimeForLevel(level, 1, 12);
+    const options = uniqueTimeDistractors(t, 3, timeVariants(), 1, 12);
+    return { kind:'welcheUhr', time:t, options };
+  }
+  function genAnalogDigital(level){
+    const direction = Math.random()<0.5 ? 'A' : 'B';
+    const t = randomTimeForLevel(level, 1, 12);
+    const options = uniqueTimeDistractors(t, 3, timeVariants(), 1, 12);
+    if(direction==='A'){
+      return { kind:'analogDigitalA', time:t, options };
+    } else {
+      return { kind:'analogDigitalB', time:t, options };
+    }
+  }
+  function genVorNach(){
+    const sit = pickSituation();
+    const h12 = sit.hour24 % 12 === 0 ? 12 : sit.hour24 % 12;
+    const correctH24 = sit.hour24;
+    const otherH24 = sit.isAM ? (correctH24+12)%24 : ((correctH24-12)+24)%24;
+    const opts = shuffle([{h:correctH24,m:0}, {h:otherH24,m:0}]);
+    return { kind:'vorNach', icon:sit.icon, text:sit.text, displayHour:h12, correct:{h:correctH24,m:0}, options:opts };
+  }
+  function durationPoolFor(level){
+    if(level==='leicht') return [15,30,45,60];
+    if(level==='mittel') return [15,20,30,40,45,60,75,90,105,120];
+    return [5,10,15,20,25,30,35,40,45,50,55,60,70,80,90,100,110,120];
+  }
+  function genZeitVergeht(level){
+    const dur = pick(durationPoolFor(level));
+    const startH = randInt(6,20);
+    const startM = level==='leicht' ? pick([0,15,30,45]) : (level==='mittel'? pick([0,5,10,15,20,25,30,35,40,45,50,55]) : randInt(0,59));
+    const start = timeToMinutes(startH, startM);
+    const end = addMinutes(start, dur);
+    const endT = minutesToTime(end);
+    if(endT.h>=22) return genZeitVergeht(level); // Grundschulgerechter Rahmen
+    const durOptions = uniqueDurationDistractors(dur, level);
+    return { kind:'zeitVergeht', start:{h:startH,m:startM}, end:endT, duration:dur, options:durOptions };
+  }
+  function uniqueDurationDistractors(correct, level){
+    const pool = durationPoolFor(level);
+    const opts = new Set([correct]);
+    let guard=0;
+    while(opts.size<4 && guard<60){
+      guard++;
+      const v = pick(pool);
+      if(v>0) opts.add(v);
+    }
+    guard=0;
+    while(opts.size<4 && guard<60){ guard++; const v = Math.max(5, correct + pick([-30,-15,-10,10,15,30])); if(v>0) opts.add(v); }
+    return shuffle(Array.from(opts));
+  }
+  function genSpaeterDann(level){
+    const dur = pick(durationPoolFor(level));
+    const startH = randInt(6,20);
+    const startM = level==='leicht' ? pick([0,15,30,45]) : (level==='mittel'? pick([0,5,10,15,20,25,30,35,40,45,50,55]) : randInt(0,59));
+    const start = timeToMinutes(startH,startM);
+    const end = addMinutes(start,dur);
+    const endT = minutesToTime(end);
+    if(endT.h>=22) return genSpaeterDann(level);
+    const options = uniqueTimeDistractors(endT, 3, timeVariants(), 0,23);
+    return { kind:'spaeterDann', start:{h:startH,m:startM}, duration:dur, end:endT, options };
+  }
+  function genFrueherVorher(level){
+    const dur = pick(durationPoolFor(level));
+    const endH = randInt(7,21);
+    const endM = level==='leicht' ? pick([0,15,30,45]) : (level==='mittel'? pick([0,5,10,15,20,25,30,35,40,45,50,55]) : randInt(0,59));
+    const end = timeToMinutes(endH,endM);
+    const start = subtractMinutes(end,dur);
+    if(start<0) return genFrueherVorher(level);
+    const startT = minutesToTime(start);
+    const options = uniqueTimeDistractors(startT, 3, timeVariants(), 0,23);
+    return { kind:'frueherVorher', end:{h:endH,m:endM}, duration:dur, start:startT, options };
+  }
+
+  function genTagesablauf(){
+    const type = pick(['A','B','C','D','E']);
+    if(type==='A' || type==='B'){
+      const unusedEv = DAY_EVENTS.filter(e => !state.usedIcons.has(e.icon));
+      const ev = unusedEv.length>0 ? pick(unusedEv) : pick(DAY_EVENTS);
+      state.usedIcons.add(ev.icon);
+      const h = pick(ev.hour), m = pick(ev.min);
+      const t = {h,m};
+      if(type==='A'){
+        const options = uniqueTimeDistractors(t,3,timeVariants(),0,23);
+        return { kind:'tagA', icon:ev.icon, label:ev.label, time:t, options };
+      } else {
+        const options = uniqueTimeDistractors(t,3,timeVariants(),0,23);
+        return { kind:'tagB', icon:ev.icon, label:ev.label, time:t, options };
+      }
+    } else if(type==='C'){
+      const picks = shuffle(DAY_EVENTS).slice(0,3).map(ev => ({ icon:ev.icon, label:ev.label, h:pick(ev.hour), m:pick(ev.min) }));
+      const sorted = picks.slice().sort((a,b)=>timeToMinutes(a.h,a.m)-timeToMinutes(b.h,b.m));
+      return { kind:'tagC', events:shuffle(picks), correctFirst: sorted[0] };
+    } else if(type==='D'){
+      let e1 = pick(DAY_EVENTS), e2 = pick(DAY_EVENTS);
+      let guard=0;
+      while(e2.label===e1.label && guard<20){ e2 = pick(DAY_EVENTS); guard++; }
+      const t1 = {h:pick(e1.hour), m:pick(e1.min)};
+      const t2 = {h:pick(e2.hour), m:pick(e2.min)};
+      if(timeToMinutes(t1.h,t1.m)===timeToMinutes(t2.h,t2.m)) return genTagesablauf();
+      const later = timeToMinutes(t1.h,t1.m) > timeToMinutes(t2.h,t2.m) ? 0 : 1;
+      return { kind:'tagD', ev1:{icon:e1.icon,label:e1.label,time:t1}, ev2:{icon:e2.icon,label:e2.label,time:t2}, laterIdx:later };
+    } else {
+      let e1 = pick(DAY_EVENTS), e2 = pick(DAY_EVENTS);
+      let guard=0;
+      while(e2.label===e1.label && guard<20){ e2=pick(DAY_EVENTS); guard++; }
+      let t1min = timeToMinutes(pick(e1.hour), pick(e1.min));
+      let t2min = timeToMinutes(pick(e2.hour), pick(e2.min));
+      if(t1min>t2min){ const tmp=t1min; t1min=t2min; t2min=tmp; const tmpE=e1; e1=e2; e2=tmpE; }
+      if(t1min===t2min) return genTagesablauf();
+      const dur = t2min-t1min;
+      const options = uniqueDurationDistractors(dur,'mittel');
+      return { kind:'tagE', ev1:{icon:e1.icon,label:e1.label,time:minutesToTime(t1min)}, ev2:{icon:e2.icon,label:e2.label,time:minutesToTime(t2min)}, duration:dur, options };
+    }
+  }
+
+  function pickGenerator(){
+    switch(state.mode){
+      case 'wieSpaet': return genWieSpaet(state.level);
+      case 'stellUhr': return genStellUhr(state.level);
+      case 'welcheUhr': return genWelcheUhr(state.level);
+      case 'analogDigital': return genAnalogDigital(state.level);
+      case 'vorNach': return genVorNach();
+      case 'zeitVergeht': return genZeitVergeht(state.level);
+      case 'spaeterDann': return genSpaeterDann(state.level);
+      case 'frueherVorher': return genFrueherVorher(state.level);
+      case 'tagesablauf': return genTagesablauf();
+    }
+  }
+
+  /* =========================================================
+     RENDER-HILFEN
+     ========================================================= */
+  function renderTimeChoiceRow(container, options, correct, onCorrectCb){
+    container.innerHTML = ''; container.className = 'choice-row';
+    options.forEach(opt => {
+      const card = document.createElement('button');
+      card.className = 'choice-card';
+      card.textContent = formatTimeT(opt);
+      card.addEventListener('click', () => {
+        if(state.locked) return;
+        if(opt.h===correct.h && opt.m===correct.m){
+          state.locked = true; card.classList.add('correct-pulse');
+          showFeedback(pick(GOOD_FEEDBACK), true); after(650, onCorrectCb);
+        } else { triggerWrongEl(card); showFeedback(pick(BAD_FEEDBACK)); }
+      });
+      container.appendChild(card);
+    });
+  }
+  function renderDurationChoiceRow(container, options, correct, onCorrectCb){
+    container.innerHTML = ''; container.className = 'choice-row';
+    options.forEach(opt => {
+      const card = document.createElement('button');
+      card.className = 'choice-card';
+      card.textContent = formatDuration(opt);
+      card.addEventListener('click', () => {
+        if(state.locked) return;
+        if(opt===correct){ state.locked = true; card.classList.add('correct-pulse'); showFeedback(pick(GOOD_FEEDBACK), true); after(650, onCorrectCb); }
+        else { triggerWrongEl(card); showFeedback(pick(BAD_FEEDBACK)); }
+      });
+      container.appendChild(card);
+    });
+  }
+  function renderClockChoiceRow(container, options, correct, small){
+    container.innerHTML = ''; container.className='clocks-row';
+    options.forEach(opt => {
+      const wrap = document.createElement('button');
+      wrap.className = 'clock-option';
+      const clockEl = buildClockEl(opt.h, opt.m, {small});
+      wrap.appendChild(clockEl);
+      wrap.addEventListener('click', () => {
+        if(state.locked) return;
+        if(opt.h===correct.h && opt.m===correct.m){ state.locked=true; wrap.classList.add('correct-pulse'); showFeedback(pick(GOOD_FEEDBACK), true); after(650, onTaskSuccess); }
+        else { triggerWrongEl(wrap); showFeedback(pick(BAD_FEEDBACK)); }
+      });
+      container.appendChild(wrap);
+    });
+  }
+
+  /* =========================================================
+     INTERAKTIVE UHR (Modus: Stell die Uhr!)
+     ========================================================= */
+  function buildInteractiveClock(container, initial, onChange){
+    const cur = { h: initial.h, m: initial.m };
+    const wrap = document.createElement('div');
+    wrap.className = 'clock-wrap';
+    wrap.style.position = 'relative';
+    wrap.innerHTML = buildClockSvg(cur.h, cur.m);
+    const svgEl = wrap.querySelector('svg');
+    svgEl.style.touchAction = 'none';
+    container.appendChild(wrap);
+    // Zeiger-Linien und Mittelpunkt bleiben als STABILE DOM-Referenzen bestehen - bei jeder
+    // Aenderung werden nur deren Koordinaten aktualisiert, nie die ganze SVG neu aufgebaut.
+    // Das vermeidet, dass svgEl/Drag-Listener nach einem Rebuild auf einen entfernten Knoten zeigen.
+    const handHour = wrap.querySelector('.hand-hour');
+    const handMinute = wrap.querySelector('.hand-minute');
+    const cx = 100, cy = 100, r = 90, hLen = r*0.5, mLen = r*0.78;
+
+    function updateHands(){
+      const hA = hourHandAngle(cur.h, cur.m), mA = minuteHandAngle(cur.m);
+      const hx = cx + hLen*Math.sin(hA*Math.PI/180), hy = cy - hLen*Math.cos(hA*Math.PI/180);
+      const mx = cx + mLen*Math.sin(mA*Math.PI/180), my = cy - mLen*Math.cos(mA*Math.PI/180);
+      handHour.setAttribute('x2', hx.toFixed(2)); handHour.setAttribute('y2', hy.toFixed(2));
+      handMinute.setAttribute('x2', mx.toFixed(2)); handMinute.setAttribute('y2', my.toFixed(2));
+      onChange && onChange(cur);
+    }
+    function setMinute(newM, keepHourFlow){
+      // Stundenzeiger folgt kontinuierlich: beim Minuten-Ueberlauf Stunde anpassen
+      let h = cur.h;
+      if(keepHourFlow){
+        if(newM>=60){ newM-=60; h=(h+1)%24; }
+        else if(newM<0){ newM+=60; h=(h-1+24)%24; }
+      } else { newM = ((newM%60)+60)%60; }
+      cur.m = newM; cur.h = h; updateHands();
+    }
+    function setHour(newH){ cur.h = ((newH%24)+24)%24; updateHands(); }
+
+    function angleFromPointer(evt){
+      const rect = svgEl.getBoundingClientRect();
+      const ccx = rect.left + rect.width/2, ccy = rect.top + rect.height/2;
+      const px = (evt.touches ? evt.touches[0].clientX : evt.clientX) - ccx;
+      const py = (evt.touches ? evt.touches[0].clientY : evt.clientY) - ccy;
+      let deg = Math.atan2(px, -py) * 180/Math.PI;
+      if(deg<0) deg += 360;
+      return deg;
+    }
+    let dragging = false;
+    function onPointerDown(evt){ dragging = true; evt.preventDefault(); onPointerMove(evt); }
+    function onPointerMove(evt){
+      if(!dragging) return;
+      evt.preventDefault();
+      const deg = angleFromPointer(evt);
+      const minute = Math.round(deg/6) % 60;
+      setMinute(minute, true);
+    }
+    function onPointerUp(){ dragging=false; }
+    svgEl.addEventListener('pointerdown', onPointerDown);
+    svgEl.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+
+    updateHands();
+    return { get:()=>({h:cur.h,m:cur.m}), setMinute, setHour, el:wrap };
+  }
+
+  function buildAdjustRow(container, clockApi, initial){
+    const row = document.createElement('div'); row.className='adjust-row';
+    const hGroup = document.createElement('div'); hGroup.className='adjust-group';
+    hGroup.innerHTML = `<div class="adjust-label">Stunde</div>`;
+    const hBtns = document.createElement('div'); hBtns.className='adjust-btns';
+    const hMinus = document.createElement('button'); hMinus.className='adjust-btn'; hMinus.textContent='−'; hMinus.setAttribute('aria-label','Stunde verringern');
+    const hVal = document.createElement('div'); hVal.className='adjust-value';
+    const hPlus = document.createElement('button'); hPlus.className='adjust-btn'; hPlus.textContent='+'; hPlus.setAttribute('aria-label','Stunde erhöhen');
+    hBtns.appendChild(hMinus); hBtns.appendChild(hVal); hBtns.appendChild(hPlus);
+    hGroup.appendChild(hBtns);
+
+    const mGroup = document.createElement('div'); mGroup.className='adjust-group';
+    mGroup.innerHTML = `<div class="adjust-label">Minute</div>`;
+    const mBtns = document.createElement('div'); mBtns.className='adjust-btns';
+    const mMinus = document.createElement('button'); mMinus.className='adjust-btn'; mMinus.textContent='−'; mMinus.setAttribute('aria-label','Minute verringern');
+    const mVal = document.createElement('div'); mVal.className='adjust-value';
+    const mPlus = document.createElement('button'); mPlus.className='adjust-btn'; mPlus.textContent='+'; mPlus.setAttribute('aria-label','Minute erhöhen');
+    mBtns.appendChild(mMinus); mBtns.appendChild(mVal); mBtns.appendChild(mPlus);
+    mGroup.appendChild(mBtns);
+
+    row.appendChild(hGroup); row.appendChild(mGroup);
+    container.appendChild(row);
+
+    const minuteStep = state.level===4 ? 5 : (state.level===5 ? 1 : (state.level===3 ? 15 : (state.level===2 ? 30 : 60)));
+
+    function refresh(){
+      const v = clockApi.get();
+      hVal.textContent = v.h; mVal.textContent = pad2(v.m);
+    }
+    hMinus.addEventListener('click', ()=>{ clockApi.setHour(clockApi.get().h-1); refresh(); });
+    hPlus.addEventListener('click', ()=>{ clockApi.setHour(clockApi.get().h+1); refresh(); });
+    mMinus.addEventListener('click', ()=>{ clockApi.setMinute(clockApi.get().m-minuteStep, true); refresh(); });
+    mPlus.addEventListener('click', ()=>{ clockApi.setMinute(clockApi.get().m+minuteStep, true); refresh(); });
+    refresh();
+    return { refresh };
+  }
+
+  /* =========================================================
+     AUFGABE RENDERN
+     ========================================================= */
+  function newTask(forcedTask){
+    state.locked = false;
+    els.feedbackMsg.classList.remove('show','good'); els.feedbackMsg.textContent = '';
+    const task = forcedTask || pickGenerator();
+    state.currentTask = task;
+    els.taskBody.innerHTML = '';
+    taskSelection = null;
+
+    if(task.kind==='wieSpaet'){
+      setPrompt('Wie spät ist es?');
+      els.taskBody.appendChild(buildClockEl(task.time.h, task.time.m));
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderTimeChoiceRow(row, task.options, task.time, onTaskSuccess);
+    }
+
+    else if(task.kind==='stellUhr'){
+      setPrompt(`Stelle ${formatTimeT(task.target)} ein.`, `Stelle ${spokenTime(task.target.h,task.target.m)} ein.`);
+      const clockHost = document.createElement('div');
+      els.taskBody.appendChild(clockHost);
+      const initial = { h: (task.target.h+randInt(1,5))%24, m: 0 };
+      let adjustRowApi = null;
+      const api = buildInteractiveClock(clockHost, initial, () => { adjustRowApi && adjustRowApi.refresh(); });
+      const adjustHost = document.createElement('div');
+      els.taskBody.appendChild(adjustHost);
+      adjustRowApi = buildAdjustRow(adjustHost, api, initial);
+      const checkBtn = document.createElement('button');
+      checkBtn.className = 'check-btn'; checkBtn.textContent = 'Uhr prüfen';
+      els.taskBody.appendChild(checkBtn);
+      checkBtn.addEventListener('click', () => {
+        if(state.locked) return;
+        const v = api.get();
+        // 24h-Logik: analoge Darstellung von Ziel und Eingabe vergleichen (Stunde mod 12 + Minute)
+        const targetMod = { h: task.target.h % 12, m: task.target.m };
+        const vMod = { h: v.h % 12, m: v.m };
+        if(targetMod.h===vMod.h && targetMod.m===vMod.m){
+          state.locked = true; checkBtn.classList.add('correct-pulse');
+          showFeedback(pick(GOOD_FEEDBACK), true); after(650, onTaskSuccess);
+        } else { triggerWrongEl(checkBtn); showFeedback(pick(BAD_FEEDBACK)); }
+      });
+    }
+
+    else if(task.kind==='welcheUhr'){
+      setPrompt(`Welche Uhr zeigt ${formatTimeT(task.time)}?`, `Welche Uhr zeigt ${spokenTime(task.time.h,task.time.m)}?`);
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderClockChoiceRow(row, task.options, task.time, true);
+    }
+
+    else if(task.kind==='analogDigitalA'){
+      setPrompt('Welche Uhrzeit passt?');
+      els.taskBody.appendChild(buildClockEl(task.time.h, task.time.m));
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderTimeChoiceRow(row, task.options, task.time, onTaskSuccess);
+    }
+    else if(task.kind==='analogDigitalB'){
+      setPrompt(`Welche Uhr zeigt ${formatTimeT(task.time)}?`, `Welche Uhr zeigt ${spokenTime(task.time.h,task.time.m)}?`);
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderClockChoiceRow(row, task.options, task.time, true);
+    }
+
+    else if(task.kind==='vorNach'){
+      setPrompt('Welche Uhrzeit passt?');
+      const sitRow = document.createElement('div');
+      sitRow.style.cssText='display:flex; align-items:center; gap:3vw;';
+      sitRow.appendChild(buildDayIcon(task.icon));
+      const txt = document.createElement('div'); txt.className='situation-line'; txt.textContent = task.text;
+      sitRow.appendChild(txt);
+      els.taskBody.appendChild(sitRow);
+      els.taskBody.appendChild(buildClockEl(task.displayHour, 0, {small:true}));
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderTimeChoiceRow(row, task.options, task.correct, onTaskSuccess);
+    }
+
+    else if(task.kind==='zeitVergeht'){
+      setPrompt('Wie viel Zeit vergeht?');
+      const row = document.createElement('div'); row.style.cssText='display:flex; gap:4vw; align-items:center;';
+      const c1 = document.createElement('div'); c1.style.cssText='display:flex;flex-direction:column;align-items:center;gap:.4vh;';
+      c1.appendChild(buildClockEl(task.start.h, task.start.m, {small:true}));
+      const l1=document.createElement('div'); l1.className='digital-chip'; l1.textContent=formatTimeT(task.start); l1.style.fontSize='clamp(11px,1.6vw,14px)'; c1.appendChild(l1);
+      const arrow = document.createElement('div'); arrow.textContent='→'; arrow.style.cssText='font-size:24px; color:var(--muted); font-weight:800;';
+      const c2 = document.createElement('div'); c2.style.cssText='display:flex;flex-direction:column;align-items:center;gap:.4vh;';
+      c2.appendChild(buildClockEl(task.end.h, task.end.m, {small:true}));
+      const l2=document.createElement('div'); l2.className='digital-chip'; l2.textContent=formatTimeT(task.end); l2.style.fontSize='clamp(11px,1.6vw,14px)'; c2.appendChild(l2);
+      row.appendChild(c1); row.appendChild(arrow); row.appendChild(c2);
+      els.taskBody.appendChild(row);
+      const choiceRow = document.createElement('div'); els.taskBody.appendChild(choiceRow);
+      renderDurationChoiceRow(choiceRow, task.options, task.duration, onTaskSuccess);
+    }
+
+    else if(task.kind==='spaeterDann'){
+      setPrompt(`Es ist ${formatTimeT(task.start)}. ${formatDuration(task.duration)} später...`, `Es ist ${spokenTime(task.start.h,task.start.m)}. ${formatDuration(task.duration)} später. Wie spät ist es dann?`);
+      els.taskBody.appendChild(buildClockEl(task.start.h, task.start.m));
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderTimeChoiceRow(row, task.options, task.end, onTaskSuccess);
+    }
+    else if(task.kind==='frueherVorher'){
+      setPrompt(`Jetzt ist es ${formatTimeT(task.end)}. Vor ${formatDuration(task.duration)}...`, `Jetzt ist es ${spokenTime(task.end.h,task.end.m)}. Vor ${formatDuration(task.duration)}. Wie spät war es?`);
+      els.taskBody.appendChild(buildClockEl(task.end.h, task.end.m));
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderTimeChoiceRow(row, task.options, task.start, onTaskSuccess);
+    }
+
+    else if(task.kind==='tagA'){
+      setPrompt(`${task.label}: welche Uhrzeit passt?`);
+      els.taskBody.appendChild(buildDayIcon(task.icon));
+      els.taskBody.appendChild(buildClockEl(task.time.h, task.time.m));
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderTimeChoiceRow(row, task.options, task.time, onTaskSuccess);
+    }
+    else if(task.kind==='tagB'){
+      setPrompt(`${task.label} ist um ${formatTimeT(task.time)}. Welche Uhr passt?`, `${task.label} ist um ${spokenTime(task.time.h,task.time.m)}. Welche Uhr passt?`);
+      els.taskBody.appendChild(buildDayIcon(task.icon));
+      const row = document.createElement('div'); els.taskBody.appendChild(row);
+      renderClockChoiceRow(row, task.options, task.time, true);
+    }
+    else if(task.kind==='tagC'){
+      setPrompt('Was passiert zuerst?');
+      const col = document.createElement('div'); col.className='events-col';
+      task.events.forEach(ev => {
+        const row = document.createElement('button'); row.className='event-row';
+        row.appendChild(buildDayIcon(ev.icon));
+        const txt = document.createElement('div'); txt.className='event-text'; txt.textContent=ev.label;
+        const tm = document.createElement('div'); tm.className='event-time'; tm.textContent=formatTimeT({h:ev.h,m:ev.m});
+        row.appendChild(txt); row.appendChild(tm);
+        row.addEventListener('click', () => {
+          if(state.locked) return;
+          if(ev.label===task.correctFirst.label && ev.h===task.correctFirst.h && ev.m===task.correctFirst.m){
+            state.locked=true; row.classList.add('correct-pulse'); showFeedback(pick(GOOD_FEEDBACK), true); after(650, onTaskSuccess);
+          } else { triggerWrongEl(row); showFeedback(pick(BAD_FEEDBACK)); }
+        });
+        col.appendChild(row);
+      });
+      els.taskBody.appendChild(col);
+    }
+    else if(task.kind==='tagD'){
+      setPrompt('Was ist später?');
+      const col = document.createElement('div'); col.className='events-col';
+      [task.ev1, task.ev2].forEach((ev,idx) => {
+        const row = document.createElement('button'); row.className='event-row';
+        row.appendChild(buildDayIcon(ev.icon));
+        const txt = document.createElement('div'); txt.className='event-text'; txt.textContent=ev.label;
+        const tm = document.createElement('div'); tm.className='event-time'; tm.textContent=formatTimeT(ev.time);
+        row.appendChild(txt); row.appendChild(tm);
+        row.addEventListener('click', () => {
+          if(state.locked) return;
+          if(idx===task.laterIdx){ state.locked=true; row.classList.add('correct-pulse'); showFeedback(pick(GOOD_FEEDBACK), true); after(650, onTaskSuccess); }
+          else { triggerWrongEl(row); showFeedback(pick(BAD_FEEDBACK)); }
+        });
+        col.appendChild(row);
+      });
+      els.taskBody.appendChild(col);
+    }
+    else if(task.kind==='tagE'){
+      setPrompt('Wie viel Zeit ist vergangen?');
+      const col = document.createElement('div'); col.className='events-col';
+      [task.ev1, task.ev2].forEach(ev => {
+        const row = document.createElement('div'); row.className='event-row'; row.style.cursor='default';
+        row.appendChild(buildDayIcon(ev.icon));
+        const txt = document.createElement('div'); txt.className='event-text'; txt.textContent=ev.label;
+        const tm = document.createElement('div'); tm.className='event-time'; tm.textContent=formatTimeT(ev.time);
+        row.appendChild(txt); row.appendChild(tm);
+        col.appendChild(row);
+      });
+      els.taskBody.appendChild(col);
+      const choiceRow = document.createElement('div'); els.taskBody.appendChild(choiceRow);
+      renderDurationChoiceRow(choiceRow, task.options, task.duration, onTaskSuccess);
+    }
+  }
+
+  buildStartScreen();
+
+  window.__uhrDebug = {
+    state, forceTask: (t) => newTask(t), getSelection: () => taskSelection,
+    timeToMinutes, minutesToTime, formatTime, formatDuration, addMinutes, subtractMinutes, durationBetween,
+    hourHandAngle, minuteHandAngle,
+    genWieSpaet, genStellUhr, genWelcheUhr, genAnalogDigital, genVorNach, genZeitVergeht, genSpaeterDann, genFrueherVorher, genTagesablauf,
+    setMode: (m,l) => { state.mode=m; state.level=l; }
+  };
+
+})();
+</script>
+
+</body>
+</html>
